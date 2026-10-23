@@ -60,10 +60,17 @@ with st.sidebar:
     st.header("⚙️ Opciones")
     n = st.slider("Número de recomendaciones (N)", 3, 15, 5)
     st.subheader("Filtros")
-    f_distrito = st.multiselect("Distrito del huarique", sorted(huariques["distrito"].unique()),
-                                placeholder="Todos los distritos")
-    f_categoria = st.multiselect("Tipo de comida", sorted(huariques["categoria_estimada"].unique()),
-                                 placeholder="Todos los tipos")
+    # Cada opción muestra cuántos huariques tiene, para anticipar si el filtro deja pocos resultados
+    n_dist = huariques["distrito"].value_counts()
+    n_cat = huariques["categoria_estimada"].value_counts()
+    f_distrito = st.multiselect("Distrito del huarique", sorted(n_dist.index),
+                                format_func=lambda d: f"{d} ({n_dist[d]})", placeholder="Todos los distritos", select_all=False,
+                                help="Puedes elegir varios (p. ej., distritos cercanos); vacío = todos. "
+                                     "Entre paréntesis, cuántos huariques hay en el catálogo.")
+    f_categoria = st.multiselect("Tipo de comida", sorted(n_cat.index),
+                                 format_func=lambda c: f"{c} ({n_cat[c]})", placeholder="Todos los tipos", select_all=False,
+                                 help="Puedes elegir varios; vacío = todos. "
+                                      "Entre paréntesis, cuántos huariques hay en el catálogo.")
     st.caption(f"Catálogo: {len(huariques)} huariques · {len(ctx.usuarios)} usuarios · "
                f"{len(inter):,} calificaciones".replace(",", "."))
 
@@ -78,7 +85,7 @@ def mostrar(ids, puntaje):
     """Tabla del Top-N con la información de cada huarique."""
     if not ids:
         st.warning("Ningún huarique cumple los filtros (o el usuario ya calificó todos los que los cumplen). "
-                   "Prueba quitando algún filtro.")
+                   "Prueba agregando más distritos o tipos de comida, o deja el filtro vacío.")
         return
     df = huariques.loc[ids, ["huarique", "distrito", "categoria_estimada", "rating_medio",
                              "n_calificaciones"]].reset_index(drop=True)
@@ -108,14 +115,11 @@ modo = st.radio("Tipo de usuario", ["Usuario con historial", "Usuario nuevo"], h
 
 if modo == "Usuario con historial":
     st.subheader("👤 Recomendación personalizada")
-    c1, c2 = st.columns([1, 2])
+    c1, _ = st.columns([1, 2])
     with c1:
         usuario = st.selectbox("Usuario", ctx.usuarios["user_id"])
-    nombres = list(mo.MODELOS)
-    with c2:
-        modelo = st.selectbox("Modelo", nombres, index=nombres.index(mo.MODELO_HISTORIAL),
-                              help="Por defecto, el modelo elegido en la Fase 5 para usuarios con historial (EASE). Los demás se pueden elegir para comparar.")
-    st.caption(f"**{modelo}:** {mo.DESCRIPCION[modelo]}")
+    modelo = mo.MODELO_HISTORIAL                     # decisión final de la Fase 5
+    st.caption(f"**Modelo: {modelo}** (elegido en la Fase 5). {mo.DESCRIPCION[modelo]}")
 
     u = int(ctx.usuarios.loc[ctx.usuarios["user_id"] == usuario, "user_idx"].iloc[0])
     vistos = inter.loc[inter["user_idx"] == u, "item_idx"].tolist()
