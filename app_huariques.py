@@ -60,17 +60,12 @@ with st.sidebar:
     st.header("⚙️ Opciones")
     n = st.slider("Número de recomendaciones (N)", 3, 15, 5)
     st.subheader("Filtros")
-    # Cada opción muestra cuántos huariques tiene, para anticipar si el filtro deja pocos resultados
-    n_dist = huariques["distrito"].value_counts()
-    n_cat = huariques["categoria_estimada"].value_counts()
-    f_distrito = st.multiselect("Distrito del huarique", sorted(n_dist.index),
-                                format_func=lambda d: f"{d} ({n_dist[d]})", placeholder="Todos los distritos", select_all=False,
-                                help="Puedes elegir varios (p. ej., distritos cercanos); vacío = todos. "
-                                     "Entre paréntesis, cuántos huariques hay en el catálogo.")
-    f_categoria = st.multiselect("Tipo de comida", sorted(n_cat.index),
-                                 format_func=lambda c: f"{c} ({n_cat[c]})", placeholder="Todos los tipos", select_all=False,
-                                 help="Puedes elegir varios; vacío = todos. "
-                                      "Entre paréntesis, cuántos huariques hay en el catálogo.")
+    f_distrito = st.multiselect("Distrito del huarique", sorted(huariques["distrito"].unique()),
+                                placeholder="Todos los distritos", select_all=False,
+                                help="Puedes elegir varios (p. ej., distritos cercanos); vacío = todos.")
+    f_categoria = st.multiselect("Tipo de comida", sorted(huariques["categoria_estimada"].unique()),
+                                 placeholder="Todos los tipos", select_all=False,
+                                 help="Puedes elegir varios; vacío = todos.")
     st.caption(f"Catálogo: {len(huariques)} huariques · {len(ctx.usuarios)} usuarios · "
                f"{len(inter):,} calificaciones".replace(",", "."))
 

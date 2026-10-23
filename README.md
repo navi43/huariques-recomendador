@@ -7,7 +7,7 @@ Aplicación en **Streamlit** que genera recomendaciones Top-N de huariques de Li
 | **Usuario con historial** | Cualquiera de los 208 usuarios del dataset | **EASE**, el modelo elegido en la Fase 5 (configurado en `modelos.py`). |
 | **Usuario nuevo (cold start)** | Una persona sin calificaciones | Llena un formulario con las preguntas de la encuesta; **kNN por encuesta** busca los 30 usuarios con perfil más parecido y recomienda lo que les gustó (calificación ≥ 4). |
 
-En los dos modos se elige el tamaño de la lista (N = 3 a 15) y se puede **filtrar por distrito y tipo de comida**: se pueden elegir varios (por ejemplo, distritos cercanos), y cada opción muestra cuántos huariques tiene. Nunca se recomienda un huarique que el usuario ya calificó.
+En los dos modos se elige el tamaño de la lista (N = 3 a 15) y se puede **filtrar por distrito y tipo de comida**: se pueden elegir varios a la vez (por ejemplo, distritos cercanos). Nunca se recomienda un huarique que el usuario ya calificó.
 
 ## Estructura
 
