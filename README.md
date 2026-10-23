@@ -7,7 +7,7 @@ Aplicación en **Streamlit** que genera recomendaciones Top-N de huariques de Li
 | **Usuario con historial** | Cualquiera de los 208 usuarios del dataset | **EASE**, el modelo elegido en la Fase 5 (configurado en `modelos.py`). |
 | **Usuario nuevo (cold start)** | Una persona sin calificaciones | Llena un formulario con las preguntas de la encuesta; **kNN por encuesta** busca los 30 usuarios con perfil más parecido y recomienda lo que les gustó (calificación ≥ 4). |
 
-En los dos modos se elige el tamaño de la lista (N = 3 a 15) y se puede **filtrar por distrito y tipo de comida**: se pueden elegir varios a la vez (por ejemplo, distritos cercanos). Nunca se recomienda un huarique que el usuario ya calificó.
+En los dos modos se elige el tamaño de la lista (N = 3 a 10) y se puede **filtrar por distrito y tipo de comida**: se pueden elegir varios a la vez (por ejemplo, distritos cercanos). Nunca se recomienda un huarique que el usuario ya calificó.
 
 ## Estructura
 
@@ -38,7 +38,7 @@ Se abre en el navegador en `http://localhost:8501`.
 
 Un usuario nuevo no tiene calificaciones, por eso los modelos colaborativos (EASE, FunkSVD) no pueden personalizarle nada. La app resuelve ese caso en dos niveles:
 
-1. **kNN por encuesta.** Las respuestas del formulario (tipos de comida, qué valora, ocasiones, edad, frecuencia, gasto, preferencia por lugares nuevos y género) se convierten en el mismo vector estandarizado que se usó con los encuestados. Se calcula la similitud coseno con los 208 usuarios, se toman los 30 más parecidos y cada huarique recibe como puntaje la suma de similitudes de los vecinos que lo calificaron con 4 o 5.
+1. **kNN por encuesta.** Las respuestas del formulario (tipos de comida, qué valora, ocasiones, edad, frecuencia, preferencia por lugares nuevos y género) se convierten en el mismo vector estandarizado que se usó con los encuestados. Se calcula la similitud coseno con los 208 usuarios, se toman los 30 más parecidos (el gasto no se pregunta: se fija en el promedio de la encuesta para que no influya) y cada huarique recibe como puntaje la suma de similitudes de los vecinos que lo calificaron con 4 o 5.
 2. **Respaldo por popularidad.** Si un huarique no le gustó a ningún vecino, su puntaje es 0. En ese caso, o cuando los filtros dejan pocos candidatos, el orden se completa con la **media suavizada** de calificaciones (Popularidad, m = 20). La app avisa cuando usa este respaldo.
 
 ## Coherencia con la Fase 5

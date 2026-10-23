@@ -37,7 +37,6 @@ pop = mo.popularidad(ctx, inter, **mo.HIPERPARAMETROS["Popularidad"])[0]
 # Opciones del formulario (mismas preguntas y códigos de la encuesta original)
 EDAD = {"18 - 24": 1, "25 - 34": 2, "35 - 44": 3, "45 - 54": 4, "55 +": 5}
 FRECUENCIA = {"1 vez al mes": 1, "2-3 veces al mes": 2, "1 vez por semana": 3, "Más de 1 vez por semana": 4}
-GASTO = {"Hasta S/20": 1, "S/21 - 40": 2, "S/41 - 70": 3, "Más de S/70": 4}
 NOVEDAD = {"Siempre a lugares conocidos": 1, "Casi siempre a conocidos": 2,
            "Conocidos o nuevos por igual": 3, "Casi siempre a lugares nuevos": 4}
 COMIDA = {"Criolla": "comida_criolla", "Marina / ceviche": "comida_marina_ceviche", "Chifa": "comida_chifa",
@@ -58,7 +57,7 @@ OCASION = {"Almuerzo / cena": "ocasion_almuerzo_cena", "Salida con amigos": "oca
 # =========================================================
 with st.sidebar:
     st.header("⚙️ Opciones")
-    n = st.slider("Número de recomendaciones (N)", 3, 15, 5)
+    n = st.slider("Número de recomendaciones (N)", 3, 10, 5)
     st.subheader("Filtros")
     f_distrito = st.multiselect("Distrito del huarique", sorted(huariques["distrito"].unique()),
                                 placeholder="Todos los distritos", select_all=False,
@@ -141,7 +140,6 @@ else:
             edad = st.selectbox("Edad", list(EDAD), index=1)
             genero = st.selectbox("Género", ctx.generos)
             frecuencia = st.selectbox("¿Con qué frecuencia vas a huariques?", list(FRECUENCIA), index=2)
-            gasto = st.selectbox("¿Cuánto gastas por persona?", list(GASTO), index=1)
             novedad = st.selectbox("¿Prefieres lugares conocidos o nuevos?", list(NOVEDAD), index=2)
         enviado = st.form_submit_button("Recomendar huariques", type="primary")
 
@@ -149,7 +147,10 @@ else:
         respuestas = {COMIDA[c]: 1 for c in comidas} | {VALORA[v]: 1 for v in valora} \
                      | {OCASION[o]: 1 for o in ocasion}
         respuestas |= {"edad_ord": EDAD[edad], "frecuencia_ord": FRECUENCIA[frecuencia],
-                       "gasto_ord": GASTO[gasto], "novedad_ord": NOVEDAD[novedad]}
+                       "novedad_ord": NOVEDAD[novedad],
+                       # El gasto ya no se pregunta: se fija en el promedio de la encuesta (valor neutro,
+                       # 0 al estandarizar), para que no influya en la búsqueda de vecinos
+                       "gasto_ord": float(ctx.perfil_media[ctx.cols_perfil.index("gasto_ord")])}
         # Se guarda en la sesión para que cambiar N o los filtros no borre el resultado
         st.session_state["respuestas_nuevo"] = (respuestas, genero, bool(comidas))
 
